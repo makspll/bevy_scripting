@@ -70,6 +70,8 @@ bevy = { version = "0.9.1"}
 rand = "0.8.5"
 bevy_console = "0.5.0"
 rhai-rand = "0.1" 
+criterion = { version = "0.4" }
+
 
 [workspace]
 resolver = "2"
@@ -92,6 +94,9 @@ opt-level = 1
 [profile.dev.package."*"]
 opt-level = 3
 
+[profile.bench]
+lto = true
+codegen-units = 1
 
 [[example]]
 name = "console_integration_lua"
@@ -151,5 +156,8 @@ name = "wrappers"
 path = "examples/wrappers.rs"
 required-features=["lua54","lua_script_api"]
 
-
+[[bench]]
+name = "string_sort_lua"
+path = "benches/lua/string_sort.rs"
+required-features = ["lua54"]
 
