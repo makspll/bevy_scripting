@@ -1,5 +1,5 @@
 use bevy::{
-    asset::{io::Reader, Asset, AssetLoader, LoadContext},
+    asset::{io::Reader, Asset, AssetLoader, AsyncReadExt, LoadContext},
     reflect::TypePath,
 };
 
@@ -25,11 +25,11 @@ impl AssetLoader for RhaiLoader {
     type Asset = RhaiFile;
     type Settings = ();
     type Error = anyhow::Error;
-    async fn load(
-        &self,
-        reader: &mut dyn Reader,
-        _: &Self::Settings,
-        _: &mut LoadContext<'_>,
+    async fn load<'a>(
+        &'a self,
+        reader: &'a mut Reader<'_>,
+        _: &'a Self::Settings,
+        _: &'a mut LoadContext<'_>,
     ) -> Result<Self::Asset, Self::Error> {
         let mut bytes = Vec::new();
         reader.read_to_end(&mut bytes).await?;

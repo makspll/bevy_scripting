@@ -7,8 +7,7 @@ permissions:
 on:
   push:
     branches:
-      - main
-      - staging
+      - [main, staging]
 
 jobs:
 

@@ -1,11 +1,7 @@
-use std::{
-    io,
-    sync::atomic::{AtomicBool, Ordering},
-};
+use std::io;
 
 use log::trace;
-use rustc_middle::ty::data_structures::Lrc;
-// use rustc_data_structures::sync::{AtomicBool, Lrc};
+use rustc_data_structures::sync::{AtomicBool, Lrc, Ordering};
 use rustc_span::source_map::{FileLoader, RealFileLoader};
 
 /// Injects extern statements into the first loaded file (crate root)

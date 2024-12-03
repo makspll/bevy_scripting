@@ -7,12 +7,12 @@ use bevy::{
         world::{Command, EntityRef, World},
     },
     prelude::{
-        AppTypeRegistry, BuildChildren, Children, DespawnChildrenRecursive, DespawnRecursive,
+        AppTypeRegistry, BuildWorldChildren, Children, DespawnChildrenRecursive, DespawnRecursive,
         Entity, Parent, ReflectComponent, ReflectDefault, ReflectResource,
     },
     reflect::{
-        DynamicArray, DynamicEnum, DynamicList, DynamicMap, DynamicSet, DynamicStruct,
-        DynamicTuple, DynamicTupleStruct, TypeRegistration,
+        DynamicArray, DynamicEnum, DynamicList, DynamicMap, DynamicStruct, DynamicTuple,
+        DynamicTupleStruct, TypeRegistration,
     },
 };
 use bevy_mod_scripting_core::{prelude::ScriptError, world::WorldPointer};
@@ -169,15 +169,15 @@ impl ScriptWorld {
 
     pub fn push_child(&self, parent: Entity, child: Entity) {
         let mut w = self.write();
-        if let Ok(mut entity) = w.get_entity_mut(parent) {
-            entity.add_children(&[child]);
+        if let Some(mut entity) = w.get_entity_mut(parent) {
+            entity.push_children(&[child]);
         }
     }
 
     pub fn remove_children(&self, parent: Entity, children: &[Entity]) {
         let mut w = self.write();
 
-        if let Ok(mut entity) = w.get_entity_mut(parent) {
+        if let Some(mut entity) = w.get_entity_mut(parent) {
             entity.remove_children(children);
         }
     }
@@ -185,19 +185,19 @@ impl ScriptWorld {
     pub fn insert_children(&self, parent: Entity, index: usize, children: &[Entity]) {
         let mut w = self.write();
 
-        if let Ok(mut entity) = w.get_entity_mut(parent) {
+        if let Some(mut entity) = w.get_entity_mut(parent) {
             entity.insert_children(index, children);
         }
     }
 
     pub fn despawn_children_recursive(&self, entity: Entity) {
         let mut w = self.write();
-        DespawnChildrenRecursive { entity, warn: true }.apply(&mut w);
+        DespawnChildrenRecursive { entity }.apply(&mut w);
     }
 
     pub fn despawn_recursive(&self, entity: Entity) {
         let mut w = self.write();
-        DespawnRecursive { entity, warn: true }.apply(&mut w);
+        DespawnRecursive { entity }.apply(&mut w);
     }
 
     pub fn get_type_by_name(&self, type_name: &str) -> Option<ScriptTypeRegistration> {
@@ -225,7 +225,7 @@ impl ScriptWorld {
 
         let mut entity_ref = w
             .get_entity_mut(entity)
-            .map_err(|e| ScriptError::Other(format!("Entity is not valid {:#?}. {e}", entity)))?;
+            .ok_or_else(|| ScriptError::Other(format!("Entity is not valid {:#?}", entity)))?;
 
         let component_data = comp_type.data::<ReflectComponent>().ok_or_else(|| {
             ScriptError::Other(format!("Not a component {}", comp_type.short_name()))
@@ -243,14 +243,13 @@ impl ScriptWorld {
             bevy::reflect::TypeInfo::List(_) => component_data.insert(&mut entity_ref, &DynamicList::default(), &registry_lock),
             bevy::reflect::TypeInfo::Array(_) => component_data.insert(&mut entity_ref, &DynamicArray::new(Box::new([])), &registry_lock),
             bevy::reflect::TypeInfo::Map(_) => component_data.insert(&mut entity_ref, &DynamicMap::default(), &registry_lock),
-            bevy::reflect::TypeInfo::Set(_) => component_data.insert(&mut entity_ref, &DynamicSet::default(), &registry_lock),
-            bevy::reflect::TypeInfo::Opaque(_) => component_data.insert(&mut entity_ref,
+            bevy::reflect::TypeInfo::Value(_) => component_data.insert(&mut entity_ref,
                 comp_type.data::<ReflectDefault>().ok_or_else(||
                     ScriptError::Other(format!("Component {} is a value or dynamic type with no `ReflectDefault` type_data, cannot instantiate sensible value",comp_type.short_name())))?
                     .default()
-                    .as_partial_reflect(),
+                    .as_ref(),
                     &registry_lock),
-            bevy::reflect::TypeInfo::Enum(_) => component_data.insert(&mut entity_ref, &DynamicEnum::default(), &registry_lock),
+            bevy::reflect::TypeInfo::Enum(_) => component_data.insert(&mut entity_ref, &DynamicEnum::default(), &registry_lock)
         };
         // if we do not drop the lock here, line below will complain registry is still borrowed at drop
         drop(registry_lock);
@@ -274,7 +273,7 @@ impl ScriptWorld {
 
         let entity_ref = w
             .get_entity(entity)
-            .map_err(|e| ScriptError::Other(format!("Entity is not valid {:#?}. {e}", entity)))?;
+            .ok_or_else(|| ScriptError::Other(format!("Entity is not valid {:#?}", entity)))?;
 
         let component_data = comp_type.data::<ReflectComponent>().ok_or_else(|| {
             ScriptError::Other(format!("Not a component {}", comp_type.short_name()))
@@ -297,7 +296,7 @@ impl ScriptWorld {
 
         let entity_ref = w
             .get_entity(entity)
-            .map_err(|e| ScriptError::Other(format!("Entity is not valid {:#?}. {e}", entity)))?;
+            .ok_or_else(|| ScriptError::Other(format!("Entity is not valid {:#?}", entity)))?;
 
         Ok(component_data.reflect(entity_ref).is_some())
     }
@@ -311,7 +310,7 @@ impl ScriptWorld {
 
         let mut entity_ref = w
             .get_entity_mut(entity)
-            .map_err(|e| ScriptError::Other(format!("Entity is not valid {:#?}. {e}", entity)))?;
+            .ok_or_else(|| ScriptError::Other(format!("Entity is not valid {:#?}", entity)))?;
 
         let component_data = comp_type.data::<ReflectComponent>().ok_or_else(|| {
             ScriptError::Other(format!("Not a component {}", comp_type.short_name()))

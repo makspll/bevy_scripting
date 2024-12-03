@@ -121,7 +121,6 @@ impl<
             + TypePath
             + Clone
             + FromRhaiProxy
-            + bevy::reflect::Typed
             + GetTypeRegistration,
     > RhaiProxyable for Option<T>
 {
@@ -250,24 +249,11 @@ impl<T: ToRhaiProxy> ToRhaiProxy for Option<T> {
 
 /// Composite trait composing the various traits required for a type `T` to be used as part of a RhaiVec<T>
 pub trait RhaiVecElem:
-    FromReflect
-    + GetTypeRegistration
-    + TypePath
-    + RhaiProxyable
-    + FromRhaiProxy
-    + Clone
-    + bevy::reflect::Typed
+    FromReflect + GetTypeRegistration + TypePath + RhaiProxyable + FromRhaiProxy + Clone
 {
 }
-impl<
-        T: FromReflect
-            + GetTypeRegistration
-            + TypePath
-            + RhaiProxyable
-            + FromRhaiProxy
-            + Clone
-            + bevy::reflect::Typed,
-    > RhaiVecElem for T
+impl<T: FromReflect + GetTypeRegistration + TypePath + RhaiProxyable + FromRhaiProxy + Clone>
+    RhaiVecElem for T
 {
 }
 

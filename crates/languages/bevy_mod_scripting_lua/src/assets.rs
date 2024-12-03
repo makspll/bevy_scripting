@@ -1,5 +1,5 @@
 use bevy::{
-    asset::{io::Reader, Asset, AssetLoader},
+    asset::{io::Reader, Asset, AssetLoader, AsyncReadExt},
     reflect::TypePath,
     utils::BoxedFuture,
 };
@@ -130,20 +130,24 @@ impl AssetLoader for LuaLoader {
     type Settings = ();
     type Error = Error;
 
-    async fn load(
-        &self,
-        reader: &mut dyn Reader, //bytes: &'a [u8],
-        _settings: &(),
-        load_context: &mut bevy::asset::LoadContext<'_>,
-    ) -> std::result::Result<
-        <Self as bevy::asset::AssetLoader>::Asset,
-        <Self as bevy::asset::AssetLoader>::Error,
+    fn load<'a>(
+        &'a self,
+        reader: &'a mut Reader, //bytes: &'a [u8],
+        _settings: &'a (),
+        load_context: &'a mut bevy::asset::LoadContext,
+    ) -> impl bevy::utils::ConditionalSendFuture<
+        Output = std::result::Result<
+            <Self as bevy::asset::AssetLoader>::Asset,
+            <Self as bevy::asset::AssetLoader>::Error,
+        >,
     > {
         bevy::prelude::info!("lua loader invoked: {:#}", load_context.asset_path());
-        let mut bytes = Vec::new();
-        reader.read_to_end(&mut bytes).await?;
-        let bytes = old_lua_load(bytes.as_slice(), load_context).await?;
-        Ok(LuaFile { bytes })
+        Box::pin(async move {
+            let mut bytes = Vec::new();
+            reader.read_to_end(&mut bytes).await?;
+            let bytes = old_lua_load(bytes.as_slice(), load_context).await?;
+            Ok(LuaFile { bytes }) //})
+        })
     }
 
     #[cfg(feature = "teal")]

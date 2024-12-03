@@ -106,8 +106,7 @@ impl<
             + GetTypeRegistration
             + TypePath
             + for<'a> FromLuaProxy<'a>
-            + Clone
-            + bevy::reflect::Typed,
+            + Clone,
     > LuaProxyable for Option<T>
 {
     fn ref_to_lua(self_: ReflectReference, lua: &Lua) -> mlua::Result<Value> {
@@ -247,7 +246,6 @@ impl<
             + GetTypeRegistration
             + TypePath
             + LuaProxyable
-            + bevy::reflect::Typed
             + for<'a> FromLuaProxy<'a>
             + for<'a> IntoLuaProxy<'a>
             + std::fmt::Debug,
@@ -276,7 +274,6 @@ impl<
             + GetTypeRegistration
             + TypePath
             + LuaProxyable
-            + bevy::reflect::Typed
             + for<'a> FromLuaProxy<'a>
             + for<'a> IntoLuaProxy<'a>
             + std::fmt::Debug,
@@ -297,7 +294,6 @@ impl<
             + GetTypeRegistration
             + TypePath
             + LuaProxyable
-            + bevy::reflect::Typed
             + for<'a> FromLuaProxy<'a>
             + for<'a> IntoLuaProxy<'a>,
     > TealData for LuaVec<T>
@@ -388,7 +384,6 @@ impl<
             + GetTypeRegistration
             + TypePath
             + LuaProxyable
-            + bevy::reflect::Typed
             + for<'a> FromLuaProxy<'a>
             + for<'a> IntoLuaProxy<'a>
             + std::fmt::Debug,
@@ -451,7 +446,6 @@ impl<
             + GetTypeRegistration
             + TypePath
             + LuaProxyable
-            + bevy::reflect::Typed
             + std::fmt::Debug,
     > FromLuaProxy<'lua> for Vec<T>
 {

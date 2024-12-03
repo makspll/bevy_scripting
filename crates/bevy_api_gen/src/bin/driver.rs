@@ -1,4 +1,3 @@
-#![feature(rustc_private)]
 use bevy_api_gen::*;
 
 fn main() {

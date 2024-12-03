@@ -1,4 +1,3 @@
-#![feature(rustc_private)]
 use std::{
     collections::HashMap,
     env,
