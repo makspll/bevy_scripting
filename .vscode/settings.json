@@ -10,12 +10,10 @@
     },
     "rust-analyzer.rustc.source": "discover",
     "rust-analyzer.linkedProjects": [
-        "./crates/bevy_api_gen/Cargo.toml",
-        // "./crates/macro_tests/Cargo.toml",
+        // "./crates/bevy_api_gen/Cargo.toml",
         "Cargo.toml",
     ],
-    "rust-analyzer.check.invocationStrategy": "per_workspace",
-    "rust-analyzer.check.invocationLocation": "workspace",
+    "rust-analyzer.check.invocationStrategy": "once",
     "rust-analyzer.check.overrideCommand": [
         "/home/makspll/git/bevy_mod_scripting/check.sh"
     ],
@@ -23,5 +21,14 @@
         "/home/makspll/git/bevy_mod_scripting/check.sh"
     ],
     "rust-analyzer.showUnlinkedFileNotification": false,
+    "rust-analyzer.runnables.extraTestBinaryArgs": [
+        "--show-output",
+    ],
+    "rust-analyzer.runnables.extraArgs": [
+        "--profile=release-with-debug",
+    ],
+    // "rust-analyzer.cargo.features": [
+    //     "bevy_mod_scripting_functions/test_functions"
+    // ]
     // "rust-analyzer.semanticHighlighting.operator.enable": false
 }
