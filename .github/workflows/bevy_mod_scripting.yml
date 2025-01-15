@@ -74,3 +74,16 @@ jobs:
       - name: Check
         run: |
           ${{ matrix.run_args.command }}
+      - name: Install lcov/genhtml
+        if: ${{ matrix.run_args.generates_coverage }}
+        run: |
+          sudo apt-get install lcov -y
+      - name: Report code coverage
+        if: ${{ matrix.run_args.generates_coverage }}
+        uses: zgosalvez/github-actions-report-lcov@v3        
+        with:
+          coverage-files: |
+            **/lcov.info
+          minimum-coverage: 50
+          artifact-name: code-coverage-report
+          github-token: ${{ secrets.GITHUB_TOKEN }}
